@@ -1,0 +1,18 @@
+Rift Reference Brain — License
+
+The reference brain (reflex-brain-rift-demo.rift) and the reference replay
+(reflex-brain-rift-demo-replay.bin) are provided for demonstration and
+verification only.
+
+Permitted:
+  - inspection
+  - running through the reference implementation or the production binaries
+  - redistributing as-is
+
+Prohibited:
+  - retraining
+  - modification
+  - using it as a starting point for a different brain
+  - production use
+
+For production brains, contact the Rift training service.

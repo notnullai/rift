@@ -1,0 +1,82 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  reference-build:
+    name: Reference implementation (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq cmake g++
+
+      - name: Build reference implementation
+        run: |
+          cd reference
+          cmake -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build -j$(nproc)
+
+      - name: Verify canonical replay hash
+        run: |
+          cd reference
+          ./build/verify \
+              --brain ../data/reflex-brain-rift-demo.rift \
+              --input ../data/test_input.bin \
+              --ticks 10000 \
+              --output-binary /tmp/reference-replay.bin
+          ACTUAL=$(sha256sum /tmp/reference-replay.bin | awk '{print $1}')
+          EXPECTED=$(awk '{print $1}' ../data/reflex-brain-rift-demo-replay.sha256)
+          echo "reference: $ACTUAL"
+          echo "expected:  $EXPECTED"
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "FAIL: reference implementation diverges from canonical replay" >&2
+            exit 1
+          fi
+          echo "PASS: reference replay matches canonical"
+
+  production-binary:
+    name: Production binary (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify production binary replay hash
+        run: |
+          chmod +x bin/rift_replay-linux-x86_64
+          bin/rift_replay-linux-x86_64 \
+              data/reflex-brain-rift-demo.rift \
+              data/test_input.bin \
+              --ticks 10000 \
+              --output-binary /tmp/prod-replay.bin
+          ACTUAL=$(sha256sum /tmp/prod-replay.bin | awk '{print $1}')
+          EXPECTED=$(awk '{print $1}' data/reflex-brain-rift-demo-replay.sha256)
+          echo "production: $ACTUAL"
+          echo "expected:   $EXPECTED"
+          if [ "$ACTUAL" != "$EXPECTED" ]; then
+            echo "FAIL: production binary diverges from canonical replay" >&2
+            exit 1
+          fi
+          echo "PASS: production replay matches canonical"
+
+  integration-test:
+    name: Integration test
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run live pipeline test
+        run: |
+          chmod +x bin/*
+          sudo ./tests/test_live_pipeline.sh

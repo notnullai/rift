@@ -1,0 +1,20 @@
+Rift Production Binaries — License
+
+The binaries in this directory are provided free of charge for evaluation
+and non-commercial use.
+
+Permitted:
+  - running the binaries for evaluation
+  - running the binaries for security research
+  - redistributing the binaries as-is, with this license intact
+  - verifying the reference replay hash
+
+Prohibited:
+  - production use
+  - commercial use of any kind
+  - modification
+  - reverse engineering
+  - bundling into a commercial product
+  - removal of this license
+
+For production use, contact contact@khalm.ai for a license.

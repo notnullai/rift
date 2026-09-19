@@ -1,0 +1,45 @@
+# Build directories
+build/
+reference/build/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Compiled objects and libraries
+*.obj
+*.lib
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.tlog
+*.o
+*.a
+*.d
+*.so
+
+# BPF objects built locally (bin/ ships the released one)
+*.bpf.o
+!bin/*.bpf.o
+
+# CMake generated
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+
+# Logs and temp
+*.log
+/tmp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+.DS_Store
